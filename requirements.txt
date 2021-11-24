@@ -1,0 +1,7 @@
+Flask==1.1.2
+psycopg2-binary
+Flask-Login
+Flask-Migrate
+requests==2.26.0
+
+
