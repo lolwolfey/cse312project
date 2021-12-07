@@ -5,19 +5,17 @@ from flask_login import LoginManager
 import os
 from .database_handler import User,init
 from flask_pymongo import PyMongo
+from app.database_handler import DB
 
 debug = True
 
 def create_app():
     app=Flask(__name__)   
+
+    DB.init()
     
-    app.config["MONGO_URI"] = "mongodb://localhost:27017/FitnessDB"
-    mongo = PyMongo(app)
     
-    chatCollections = mongo.db["chathistory"]
-    userCollections = mongo.db["users"]
-    
-    #app.config['SECRET_KEY'] = b'\nI\x18]\xc3\x96m&@\xbffG\xf5a.T'
+    app.config['SECRET_KEY'] = b'\nI\x18]\xc3\x96m*@\xbffG\xf5a.X'
 
     app.config.update(
         DEBUG = True,
@@ -31,7 +29,7 @@ def create_app():
     login_manager.init_app(app)
     
     # initialize database mongodb
-    init(mongo)
+    #init(mongo)
 
     # Initializes a user based on their user_id. This is used in Flask_login to store the current_user variable.
     @login_manager.user_loader

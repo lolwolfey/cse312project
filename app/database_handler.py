@@ -11,13 +11,17 @@ class DB(object):
     def init():
         client = pymongo.MongoClient(DB.URI)
         DB.DATABASE = client['sample_app']
+        print(f"DATABASE INITIALIZED in INIT")
 
     @staticmethod
     def insert(collection, data):
+        print(f"INSERTING into {collection}: {data}")
         DB.DATABASE[collection].insert(data)
 
     @staticmethod
     def find_one(collection, query):
+        print(f"FINDING {collection} using {query}")
+        print(f"{DB.DATABASE[collection].find_one(query)}")
         return DB.DATABASE[collection].find_one(query)
     
 
@@ -87,7 +91,7 @@ def init(mongo):
     
 
 def user_login(username,password):
-    row = userCollections.find_one({"username":username})
+    row = DB.find_one("userDetails",{"username":username})
     if row == None:
         return False
     db_password = row["password"]
@@ -96,21 +100,21 @@ def user_login(username,password):
     return True
     
 def signup_user(email,username,password):
-    if (userCollections.find_one({"email": email})==None) and (userCollections.find_one({"username":username}) == None):
+    if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
         hashedPassword = generate_password_hash(password, method='sha256')
         userDetails = {"email": email, "username": username, "password": hashedPassword}
-        userCollections.insertOne(userDetails)
+        DB.insertOne("userDetails",userDetails)
         return True #signup pass
     return False #signup failed
 
 def get_user_by_username(username):
-    row = userCollections.find_one({"username": username})
+    row = DB.find_one("userDetails",{"username": username})
     if row == None:
         return False
     return row
 
 def get_user_by_id(id):
-    row = userCollections.find_one({"_id": id})
+    row = DB.find_one("userDetails",{"_id": id})
     if row == None:
         return False
     return row
