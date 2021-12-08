@@ -31,6 +31,11 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        xsrf = request.form['xsrf']
+        print(f"xsrf: {xsrf}")
+
+
+
         print(f"USERNAME: {username} PASSWORD: {password}")
         user = User(None, username, password)
         if user.login(username, password):
@@ -39,7 +44,8 @@ def login():
             return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.', 'error')
-
+    xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    print(xsrfToken)
     return render_template("Login.html")
 
 @auth.route("/signup", methods=['POST','GET'])
@@ -49,6 +55,9 @@ def handle_form():
         username = request.form['username']
         email = request.form['email']
         password1 = request.form['password']
+        xsrf = request.form['xsrf']
+        print(f"xsrf: {xsrf}")  
+
         print(f"EMAIL: {email}, PASSWORD: {password1}")
         valid, error = password_requirements(password1)
         print(f"VALID: {valid}, ERROR: {error}")
@@ -82,8 +91,9 @@ def handle_form():
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error')
     #global xsrfToken
-    #xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
-    return render_template("Signup.html",xsrf=xsrfToken)
+    xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    print(xsrfToken)
+    return render_template("Signup.html",xsrf = xsrfToken)
 
 # The following Password requirements must be met:
 # At least 8 characters long.
