@@ -5,7 +5,7 @@ from pymongo import MongoClient, mongo_client
 import pymongo
 
 class DB(object):
-    URI = "mongodb://127.0.0.1:27017"
+    URI = "mongo"
 
     @staticmethod
     def init():
