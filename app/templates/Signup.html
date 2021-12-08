@@ -134,26 +134,23 @@ body {
   <br></br>
       <div class = "login">
         <h1> Welcome! </h1>
-        <form method="post">
+        <form action="signup" id="signup-form" method="post" enctype="multipart/form-data">
           <div class="textf">
-            <input type="text" name='email' placeholder="Enter your email" required>
-            <span></span>
+            <label for="signup-form-email">Email: </label>
+            <input id="signup-form-email" type="text" name="email"><br/>
           </div>
           <div class="textf">
-            <input type="text" name='username' placeholder="Enter your Username" required>
-            <span></span>
+            <label for="signup-form-name">Username: </label>
+            <input id="signup-form-name" type="text" name="username"><br/>
           </div>
-        <div class="textf">
-            <input type="password" name='password1' placeholder="Enter your Password" required>
-            <span></span>
-        </div>
-            <div class="textf">
-            <input type="password" name='password2' placeholder="Confirm your Password" required>
-            <span></span>
-            </div>
-       
-        <input type="submit" value="Sign Up">
-      </form>
+          <div class="textf">
+            <label for="form-password">Password: </label>
+            <input id="form-password" type="password" name="password">
+          </div>
+          <label for="form-file">Image: </label>
+          <input id="form-file" type="file" name="upload">
+          <input type="submit" value="Sign up">
+        </form>
       <div class = "signup">Have an account already? <a href="\"> Log in</a></div>
       <div class = "flashes">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -165,7 +162,7 @@ body {
             </ul>
           {% endif %}
         {% endwith %}
-        </div>
+      </div>
   </div>
 </body>
 </html>

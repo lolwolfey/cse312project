@@ -8,6 +8,7 @@ from flask_pymongo import PyMongo
 #from app.database_handler import DB
 import app.database_handler
 
+UPLOAD_FOLDER = 'static/image/'
 debug = True
 
 def create_app():
@@ -15,7 +16,8 @@ def create_app():
 
     database_handler.DB.init()
     
-    
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
     app.config['SECRET_KEY'] = b'\nI\x18]\xc3\x96m*@\xbffG\xf5a.X'
 
     app.config.update(
