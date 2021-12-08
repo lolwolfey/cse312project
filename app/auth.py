@@ -31,16 +31,32 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        xsrftokensent = request.form['xsrf_token']
+        print(f"xsrf: {xsrftokensent}")
         print(f"USERNAME: {username} PASSWORD: {password}")
         user = User(None, username, password)
+        print(f"{xsrftokensent} = {auth.xsrfToken}")
         if user.login(username, password):
             login_user(user, remember=True)
             print("SUCCESFULLY LOGGED IN!")
+            print(f"{xsrftokensent} = {auth.xsrfToken}")
+            if xsrftokensent == xsrfToken: 
+                login_user(user, remember=True)
+                print("SUCCESFULLY LOGGED IN!")
+                return redirect(url_for('main.home'))
+            else:
+                flash('you tryna hack us?', 'error')
+
             return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.', 'error')
-
-    return render_template("Login.html")
+    auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    test = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    print(test)
+    print("why is this not working")
+    print(f"xsrf: {auth.xsrfToken}")
+    return render_template("Login.html",xsrf=auth.xsrfToken)
+   
 
 @auth.route("/signup", methods=['POST','GET'])
 def handle_form():
@@ -49,6 +65,8 @@ def handle_form():
         username = request.form['username']
         email = request.form['email']
         password1 = request.form['password']
+        xsrfTokenSent = request.form["xsrf_token"]
+        print(xsrfTokenSent)
         print(f"EMAIL: {email}, PASSWORD: {password1}")
         valid, error = password_requirements(password1)
         print(f"VALID: {valid}, ERROR: {error}")
@@ -56,7 +74,12 @@ def handle_form():
             if(email_requirements(email) == True):
                 if signup_user(email, username, password1) == True:
                     flash('Account created', 'info')
-                    return redirect(url_for('auth.login'))
+                    if xsrfTokenSent == xsrfToken: 
+                        print("test")
+                        return redirect(url_for('auth.login'))
+                    else:
+                            flash('you tryna hack us?', 'error')
+                    
                 elif signup_user(email, username, password1) == False:
                     flash('That username/email address is already attached to an account.', 'error')
             else:
@@ -68,22 +91,25 @@ def handle_form():
         # if 'file' not in request.files:
         #     flash('No file part', 'error')
         #     return redirect(request.url)
-        file = request.files['upload']
-        if file.filename == '':
-            flash('No image selected for uploading','error')
-        #return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = "file0"+str(imgcount)+".jpg"
-            print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        #print('upload_image filename: ' + filename)
-            flash('Image successfully uploaded and displayed below','info')
-        #return render_template('Signup.html', filename=filename)
-        else:
-            flash('Allowed image types are -> png, jpg, jpeg','error')
+    file = request.files['upload']
+    if file.filename == '':
+        flash('No image selected for uploading','error')
+    #return redirect(request.url)
+    if file and allowed_file(file.filename):
+        filename = "file0"+str(imgcount)+".jpg"
+        print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    #print('upload_image filename: ' + filename)
+        flash('Image successfully uploaded and displayed below','info')
+    #return render_template('Signup.html', filename=filename)
+    else:
+        flash('Allowed image types are -> png, jpg, jpeg','error')
     #global xsrfToken
-    #xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    print(xsrfToken)
+    print("Test")
     return render_template("Signup.html",xsrf=xsrfToken)
+
 
 # The following Password requirements must be met:
 # At least 8 characters long.
