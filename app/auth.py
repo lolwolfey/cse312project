@@ -27,6 +27,7 @@ def login():
         user = User(None, username, password)
         if user.login(username, password):
             login_user(user, remember=True)
+            print("SUCCESFULLY LOGGED IN!")
             return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.', 'error')
@@ -43,11 +44,12 @@ def signup():
         
         if password1 == password2:
             valid, error = password_requirements(password1)
-            if valid:
-                if signup_user(email, username, password1):
+            print(f"VALID: {valid}, ERROR: {error}")
+            if valid == True:
+                if signup_user(email, username, password1) == True:
                     flash('Account created', 'info')
                     return redirect(url_for('auth.login'))
-                else:
+                elif signup_user(email, username, password1) == False:
                     flash('That username/email address is already attached to an account.', 'error')
             else:
                 for err in error:

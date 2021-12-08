@@ -147,6 +147,17 @@ body {
       <input type="submit" value="Login">
         </form>
       <div class = "signup">Don't have an account yet? <a href="/signup"> Sign up</a></div>
+      <div class = "flashes">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        </div>
 </div>
 </body>
 </html>

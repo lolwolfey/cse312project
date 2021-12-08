@@ -16,7 +16,7 @@ class DB(object):
     @staticmethod
     def insert(collection, data):
         print(f"INSERTING into {collection}: {data}")
-        DB.DATABASE[collection].insert(data)
+        DB.DATABASE[collection].insert_one(data)
 
     @staticmethod
     def find_one(collection, query):
@@ -100,10 +100,15 @@ def user_login(username,password):
     return True
     
 def signup_user(email,username,password):
+    if (DB.find_one("userDetails",{"email": email}) != None) or (DB.find_one("userDetails",{"username":username}) != None):
+        print("SIGNUP FAILED")
+        return False
     if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
         hashedPassword = generate_password_hash(password, method='sha256')
         userDetails = {"email": email, "username": username, "password": hashedPassword}
-        DB.insertOne("userDetails",userDetails)
+        DB.insert("userDetails",userDetails)
+        DB.find_one("userDetails",{"email": email})
+        print("SIGNUP SUCCESS")
         return True #signup pass
     return False #signup failed
 

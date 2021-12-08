@@ -9,7 +9,7 @@ from pymongo import MongoClient, mongo_client
 main = Blueprint('main',__name__)
 
 
-@main.route("/")
+@main.route("/home")
 @login_required
 def home():
     return render_template('index.html')
