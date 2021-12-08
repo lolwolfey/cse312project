@@ -9,11 +9,13 @@ import os
 from .database_handler import init, signup_user, user_login, User#delete when merging
 from pymongo import MongoClient, mongo_client
 from werkzeug.utils import secure_filename
-
+import string
+import random
 
 auth = Blueprint('auth', __name__)
 
 imgcount = 0
+xsrfToken = ""
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 def allowed_file(filename):
@@ -79,8 +81,9 @@ def handle_form():
         #return render_template('Signup.html', filename=filename)
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error')
-
-    return render_template("Signup.html")
+    #global xsrfToken
+    #xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    return render_template("Signup.html",xsrf=xsrfToken)
 
 # The following Password requirements must be met:
 # At least 8 characters long.

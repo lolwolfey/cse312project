@@ -136,6 +136,7 @@ body {
       <div class = "login">
         <h1> Welcome! </h1>
         <form action="login" id="login-form" method="post" enctype="multipart/form-data">
+          <input value = {{xsrf}} name = "xsrf_token" hidden> 
           <div class="textf">
             <label for="login-form-name">Username: </label>
             <input id="login-form-name" type="text" name="username"><br/>
