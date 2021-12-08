@@ -12,7 +12,7 @@ class DB(object):
         client = pymongo.MongoClient(DB.URI)
         DB.DATABASE = client['sample_app']
         print(f"DATABASE INITIALIZED in INIT")
-
+        
     @staticmethod
     def insert(collection, data):
         print(f"INSERTING into {collection}: {data}")

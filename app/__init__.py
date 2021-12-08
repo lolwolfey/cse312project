@@ -5,14 +5,15 @@ from flask_login import LoginManager
 import os
 from .database_handler import User,init
 from flask_pymongo import PyMongo
-from app.database_handler import DB
+#from app.database_handler import DB
+import app.database_handler
 
 debug = True
 
 def create_app():
     app=Flask(__name__)   
 
-    DB.init()
+    database_handler.DB.init()
     
     
     app.config['SECRET_KEY'] = b'\nI\x18]\xc3\x96m*@\xbffG\xf5a.X'
