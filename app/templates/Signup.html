@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Rancho&display=swap');
+
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Rancho", cursive;
+    font-family: 'Trebuchet MS', sans-serif;
   }
   .login{
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 400px;
-    background: #BDBDBD;
+    width: 650px;
+    background: #c8edf1;
     border-radius: px;
     z-index: 0
   }
@@ -53,7 +53,7 @@
     width: 50%;
     height: 30px;
     border: 1px solid;
-    background: red;
+    background: rgb(26, 118, 223);
     border-radius: 25px;
     font-size: 18px;
     color: #e9f4fb;
@@ -66,10 +66,10 @@
     transition: .5s;
   }
 body {
-  background-color: #BDBDBD;
+  background-color: #c8edf1;
   border: 0;
   margin: 0;
-  font-family: 'Rancho', cursive;
+  font-family: 'Trebuchet MS', sans-serif;
   font-weight: bold;
   text-align: center;
   font-size: 50px;
@@ -79,7 +79,7 @@ body {
   position: relative;
   border: 0;
   margin: 0;
-  font-family: 'Rancho', cursive;
+  font-family: 'Trebuchet MS', sans-serif;
   text-align: center;
   font-size: 25px;
   white-space: nowrap;
@@ -88,7 +88,7 @@ body {
   position: relative;
   border: 0;
   margin: 0;
-  font-family: 'Rancho', cursive;
+  font-family: 'Trebuchet MS', sans-serif;
   text-align: center;
   list-style-position: inside;
   font-size: 15px;
@@ -100,8 +100,8 @@ body {
 
 .topnav { 
   overflow: hidden;
-  background-color: rgb(146, 23, 23);
-  font-family: 'Rancho', cursive;
+  background-color: rgb(48, 163, 216);
+  font-family: 'Trebuchet MS', sans-serif;
   z-index: 1;
 }
 
@@ -112,12 +112,12 @@ body {
   padding: 14px 16px;
   text-decoration: none;
   font-size: 25px;
-  font-family: 'Rancho', cursive;
+  font-family: 'Trebuchet MS', sans-serif;
   font-weight: bold;
 }
 
 .topnav a:hover {
-  background-color: #ddd;
+  background-color: rgb(69, 55, 196);
   color: black;
 }
 
@@ -128,12 +128,12 @@ body {
 <body>
 
 <div class="topnav">
-    <a class="active" href="/login"><i>Boom Boom Sauce</i></a>
+    <a class="active" href="/login"><i>UBIMG</i></a>
 </div>
 
   <br></br>
       <div class = "login">
-        <h1> Welcome! </h1>
+        <h1> Sign Up Here! </h1>
         <form action="signup" id="si gnup-form" method="post" enctype="multipart/form-data">
           <input value = {{xsrf}} name = "xsrf_token" hidden> 
           <div class="textf">
@@ -148,7 +148,7 @@ body {
             <label for="form-password">Password: </label>
             <input id="form-password" type="password" name="password">
           </div>
-          <label for="form-file">Image: </label>
+          <label for="form-file">Profile Picture: </label>
           <input id="form-file" type="file" name="upload">
           <input type="submit" value="Sign up">
         </form>
