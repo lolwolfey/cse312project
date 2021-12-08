@@ -135,16 +135,17 @@ body {
   <br></br>
       <div class = "login">
         <h1> Welcome! </h1>
-        <form method="post">
+        <form action="login" id="login-form" method="post" enctype="multipart/form-data">
+          <input value = {{xsrf}} name = "xsrf_token" hidden> 
           <div class="textf">
-            <input type="text" name='username' placeholder="Username" required>
-            <span></span>
+            <label for="login-form-name">Username: </label>
+            <input id="login-form-name" type="text" name="username"><br/>
           </div>
           <div class="textf">
-            <input type="password" name='password' placeholder="Password" required>
-            <span></span>
+            <label for="form-password">Password: </label>
+            <input id="form-password" type="password" name="password">
           </div>
-      <input type="submit" value="Login">
+          <input type="submit" value="Login">
         </form>
       <div class = "signup">Don't have an account yet? <a href="/signup"> Sign up</a></div>
       <div class = "flashes">

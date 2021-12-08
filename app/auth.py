@@ -8,10 +8,18 @@ import sys
 import os
 from .database_handler import init, signup_user, user_login, User#delete when merging
 from pymongo import MongoClient, mongo_client
-
+from werkzeug.utils import secure_filename
+import string
+import random
 
 auth = Blueprint('auth', __name__)
 
+imgcount = 0
+xsrfToken = ""
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth.route("/")
 def initialize():
@@ -35,17 +43,17 @@ def login():
     return render_template("Login.html")
 
 @auth.route("/signup", methods=['POST','GET'])
-def signup():
+def handle_form():
     if request.method == 'POST':
-        email = request.form['email']
+        print(f"REQUEST.FORM = {request.form}")
         username = request.form['username']
-        password1 = request.form['password1']
-        password2 = request.form['password2']
-        
-        if password1 == password2:
-            valid, error = password_requirements(password1)
-            print(f"VALID: {valid}, ERROR: {error}")
-            if valid == True:
+        email = request.form['email']
+        password1 = request.form['password']
+        print(f"EMAIL: {email}, PASSWORD: {password1}")
+        valid, error = password_requirements(password1)
+        print(f"VALID: {valid}, ERROR: {error}")
+        if valid == True:
+            if(email_requirements(email) == True):
                 if signup_user(email, username, password1) == True:
                     flash('Account created', 'info')
                     return redirect(url_for('auth.login'))
@@ -56,8 +64,26 @@ def signup():
                     flash(err, 'error')
         else:
             flash('Passwords do not match.', 'error')
-
-    return render_template("Signup.html")
+        
+        # if 'file' not in request.files:
+        #     flash('No file part', 'error')
+        #     return redirect(request.url)
+        file = request.files['upload']
+        if file.filename == '':
+            flash('No image selected for uploading','error')
+        #return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = "file0"+str(imgcount)+".jpg"
+            print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        #print('upload_image filename: ' + filename)
+            flash('Image successfully uploaded and displayed below','info')
+        #return render_template('Signup.html', filename=filename)
+        else:
+            flash('Allowed image types are -> png, jpg, jpeg','error')
+    #global xsrfToken
+    #xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    return render_template("Signup.html",xsrf=xsrfToken)
 
 # The following Password requirements must be met:
 # At least 8 characters long.
@@ -99,6 +125,12 @@ def password_requirements(password):
         error.insert(0,'Invalid Password:')
     
     return valid, error
+
+def email_requirements(email):
+    if '@' in email and '.com' in email:
+        return True
+    else:
+        return False
 
 
 
