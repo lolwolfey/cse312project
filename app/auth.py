@@ -17,6 +17,7 @@ from app import *
 auth = Blueprint('auth', __name__)
 
 imgcount = 0
+userid = 0
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 def allowed_file(filename):
@@ -34,7 +35,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         print(f"USERNAME: {username} PASSWORD: {password}")
-        user = User(None, username, password)
+        user = User(None,username,password)
         if user.login(username, password):
             login_user(user, remember=True)
             print("SUCCESFULLY LOGGED IN!")
@@ -141,16 +142,7 @@ def email_requirements(email):
     else:
         return False
 
-def readImage(fname):
-    with open(fname, 'rb') as file:
-        b = file.read()
-    file.close()
-    return b
 
-def writeImage(fname, content):
-    with open(fname, 'wb') as file:
-        file.write(content)
-    file.close()
 
 @auth.route("/logout", methods=['POST'])
 @login_required

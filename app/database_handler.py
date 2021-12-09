@@ -1,8 +1,11 @@
 import sys
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 from pymongo import MongoClient, mongo_client
 import pymongo
+
+user_ID = 1
 
 class DB(object):
     URI = "mongo"
@@ -25,42 +28,39 @@ class DB(object):
         return DB.DATABASE[collection].find_one(query)
     
 
-class User:
-    user_id = None
-    email = None
+class User(UserMixin):
+    user_id = user_ID
     username = None
     hashedPassword = None
     authenticated = False
 
-   # A user object can be made in 2 ways, username and password or user id. the other values should be none.
     def __init__(self, user_id, username, password):
+        print("INITIALIZING USER")
         if user_id == None:
+            print("userid = None")
             user = get_user_by_username(username)
+            print(user)
             if user:
                 if check_password_hash(user["password"], password):
-                    self.email = user["email"]
                     self.username = user["username"]
                     self.hashedPassword = user["password"]
-                    self.user_id = user["_id"]
+                    self.user_id = user["user_ID"]
                     self.authenticated = True
 
-        # Exccpets a unicode ID, must return None id an invalid Id is provided.
-        elif username == None and password == None:
-            try:
-                user_id = int(user_id)
-            except ValueError:
-                return None
-            user = get_user_by_id(user_id)
+        if self.username == None and password == None:
+            print("userid!=None")
+            print(f"userID: {self.user_id}")
+            user = get_user_by_id(self.user_id)
+            print(f"USER ROW:{user}")
             if not user:
                 return None
-            self.email = user["email"]
             self.username = user["username"]
             self.hashedPassword = user["password"]
-            self.user_id = user["_id"]
+            self.user_id = user["user_ID"]
             self.authenticated = True
 
-        else:
-            return None
+        # else:
+        #     return None
 
     def login(self, username, password):
         if user_login(username, password):
@@ -100,12 +100,14 @@ def user_login(username,password):
     return True
     
 def signup_user(email,username,password):
+    global user_ID
     if (DB.find_one("userDetails",{"email": email}) != None) or (DB.find_one("userDetails",{"username":username}) != None):
         print("SIGNUP FAILED")
         return False
     if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
         hashedPassword = generate_password_hash(password, method='sha256')
-        userDetails = {"email": email, "username": username, "password": hashedPassword}
+        userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashedPassword}
+        user_ID+=1
         DB.insert("userDetails",userDetails)
         DB.find_one("userDetails",{"email": email})
         print("SIGNUP SUCCESS")
@@ -114,12 +116,10 @@ def signup_user(email,username,password):
 
 def get_user_by_username(username):
     row = DB.find_one("userDetails",{"username": username})
-    if row == None:
-        return False
     return row
 
 def get_user_by_id(id):
-    row = DB.find_one("userDetails",{"_id": id})
+    row = DB.find_one("userDetails",{"user_ID": id})
     if row == None:
         return False
     return row

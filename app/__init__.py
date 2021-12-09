@@ -6,7 +6,6 @@ import os
 
 import socketio
 from .database_handler import User,init
-from flask_pymongo import PyMongo
 #from app.database_handler import DB
 import app.database_handler
 from flask_socketio import SocketIO
