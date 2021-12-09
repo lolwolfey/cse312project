@@ -93,21 +93,21 @@ def handle_form():
         # if 'file' not in request.files:
         #     flash('No file part', 'error')
         #     return redirect(request.url)
-    print("testing")
-    file = request.files['upload']
-    print("testing")
-    if file.filename == '':
-        flash('No image selected for uploading','error')
-    #return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = "file0"+str(imgcount)+".jpg"
-        print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    #print('upload_image filename: ' + filename)
-        flash('Image successfully uploaded and displayed below','info')
-    #return render_template('Signup.html', filename=filename)
-    else:
-        flash('Allowed image types are -> png, jpg, jpeg','error')
+    # print("testing")
+    # file = request.files['upload']
+    # print("testing")
+    # if file.filename == '':
+    #     flash('No image selected for uploading','error')
+    # #return redirect(request.url)
+    # if file and allowed_file(file.filename):
+    #     filename = "file0"+str(imgcount)+".jpg"
+    #     print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
+    #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    # #print('upload_image filename: ' + filename)
+    #     flash('Image successfully uploaded and displayed below','info')
+    # #return render_template('Signup.html', filename=filename)
+    # else:
+    #     flash('Allowed image types are -> png, jpg, jpeg','error')
     #global xsrfToken
     auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
     print(auth.xsrfToken)
