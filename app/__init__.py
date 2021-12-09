@@ -3,13 +3,17 @@ from flask import Flask, request
 from flask.templating import render_template
 from flask_login import LoginManager
 import os
+
+import socketio
 from .database_handler import User,init
 from flask_pymongo import PyMongo
 #from app.database_handler import DB
 import app.database_handler
+from flask_socketio import SocketIO
 
 UPLOAD_FOLDER = 'app/static/uploads/'
 debug = True
+socketio = SocketIO()
 
 def create_app():
     app=Flask(__name__)   
@@ -47,5 +51,8 @@ def create_app():
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+
+    socketio.init_app(app)
 
     return app
