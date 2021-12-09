@@ -17,13 +17,23 @@ main = Blueprint('main',__name__)
 @main.route("/home")
 @login_required
 def home():
+    print(f"CURRENT USER USERNAME: {current_user.username}")
     return render_template('index.html')
 
-@socketio.event
-def connect():
-    if current_user.is_authenticated:
-        print("response")
-        join_room(current_user.username) #User
-        emit('my_response', {'data': 'Connected', 'count': current_user.username})
-    else:
-        return False # not logged in
+def messageReceived(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+
+@socketio.on('my event')
+def handle_my_custom_event(json, methods=['GET', 'POST']):
+    print('received my event: ' + str(json))
+    socketio.emit('my response', json, callback=messageReceived)
+    
+# @socketio.event
+# def connect():
+#     if current_user.is_authenticated:
+#         print("response")
+#         join_room(current_user.username) #User
+#         emit('my_response', {'data': 'Connected', 'count': current_user.username})
+#     else:
+#         return False # not logged in
