@@ -11,6 +11,35 @@
     <link rel="stylesheet" href="assets/css/Navigation-with-Button.css">
     <link rel="stylesheet" href="assets/css/Team-Boxed.css">
     <link rel="stylesheet" href="assets/css/Social-Icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect',function(){
+                socket.emit('connection',{});
+            });
+
+            socket.on('response',function(){
+                $('#log').append('<li>'+'user has connected with websocket'+'</li>');
+                console.log("user connected");
+            })
+
+            socket.on('my_response', function(msg){
+                $('#log').append('<li>'+msg+'</li>');
+                console.log("received message");
+            });
+
+            $('#sendbutton').on('click', function(){
+                socket.emit('submission', {
+                    username = $("#username").val(),
+                    message = $("#myMessage").val()
+                });
+                $('#myMessage').val('');
+            })
+        })
+    </script>
+
 
 </head>
 
@@ -37,19 +66,9 @@
                 <div class="col">
                     <div class="box">
                         <h3 class="name">Users Online<i class="fas fa-cogs"></i></a> </h3>
-                        <ul style="padding: -49px;width: 277.984px;margin: 12px;" id="CSE250q">
+                        
+                        {{usersonline}}
 
-                            <li id="user1"></li>
-                            <li id="user2"></li>
-                            <li id="user3"></li>
-                            <li id="user4"></li>
-                            <li id="user5"></li>
-                            <li id="user6"></li>
-                            <li id="user7"></li>
-                            <li id="user8"></li>
-                            <li id="user9"></li>
-                            <li id="user10"></li>
-                        </ul>
                         <p class="description"></p>
                         <ul class="list-group"></ul>
                     </div>
