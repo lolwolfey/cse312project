@@ -33,4 +33,10 @@ def connect(methods = ['GET', 'POST']):
 @login_required
 def submit(comment, methods = ['GET', 'POST']):
     print("response sent")
-    socketio.emit('response', comment['message'],broadcast=True)
+    socketio.emit('my_response', str(comment),broadcast=True)
+
+@socketio.on('direct_message')
+@login_required
+def direct(comment, nethods = ['GET','POST']):
+    print("message to blank sent")
+    socketio.emit('Direct',str(comment), to="room")
