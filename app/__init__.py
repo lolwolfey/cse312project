@@ -8,7 +8,7 @@ from flask_pymongo import PyMongo
 #from app.database_handler import DB
 import app.database_handler
 
-UPLOAD_FOLDER = '/static/uploads/'
+UPLOAD_FOLDER = 'app/static/uploads/'
 debug = True
 
 def create_app():

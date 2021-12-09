@@ -124,3 +124,5 @@ def get_user_by_id(id):
         return False
     return row
     
+def saveImageDB(filename,username):
+    DB.insert("imageCollection",{username: filename})

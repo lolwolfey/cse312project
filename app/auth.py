@@ -1,3 +1,4 @@
+from posixpath import abspath
 from flask import *
 from flask import current_app
 #from . import db
@@ -7,7 +8,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 import sys
 #import psycopg2
 import os
-from .database_handler import init, signup_user, user_login, User#delete when merging
+from .database_handler import init, signup_user, user_login, saveImageDB, User#delete when merging
 from pymongo import MongoClient, mongo_client
 from werkzeug.utils import secure_filename
 from app import *
@@ -61,11 +62,10 @@ def handle_form():
             print("FILENAME ALLOWED")
             filename = secure_filename(file.filename)
             #filename = f"file0{str(imgcount)}.jpg"
-            #basedir = os.path.abspath(os.path.dirname(__file__))
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
-            print('upload_image filename: ' + filename)
+            print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),username)
             flash('Image successfully uploaded','info')
-            return render_template('Signup.html', filename=filename)
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error')
             fileflag = 1
