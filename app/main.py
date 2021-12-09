@@ -1,6 +1,7 @@
 from typing import AsyncContextManager
 from flask import Flask, render_template
 from flask.blueprints import Blueprint
+from flask.wrappers import Response
 from flask_login.utils import login_required
 import requests
 from pymongo import MongoClient, mongo_client
@@ -17,13 +18,19 @@ main = Blueprint('main',__name__)
 @main.route("/home")
 @login_required
 def home():
+    print(current_user.username)
     return render_template('index.html')
 
-@socketio.event
-def connect():
-    if current_user.is_authenticated:
-        print("response")
-        join_room(current_user.username) #User
-        emit('my_response', {'data': 'Connected', 'count': current_user.username})
-    else:
-        return False # not logged in
+@socketio.on('connection')
+@login_required
+def connect(methods = ['GET', 'POST']):
+    print("response")
+    join_room("room")
+    print("room successfully joined")
+    socketio.emit('response', "response")
+
+@socketio.on('submission')
+@login_required
+def submit(comment, methods = ['GET', 'POST']):
+    print("response sent")
+    socketio.emit('response', comment['message'],broadcast=True)

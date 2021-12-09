@@ -6,33 +6,32 @@
         <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
         <script type="text/javascript" charset="utf-8">
-            $(document).ready(function(){
-                var socket = io();
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-                socket.on('connect',function(){
-                    socket.emit('You are connected!')
-                });
-
-                socket.on('my_response', function(msg, cb){
-                    $('#log').append('<br>'+$('<div>').text('Recieved #' + msg.count + ': ' + msg.data).html());
-                        if(cb)
-                            cb();
-                });
-
-                $('form#broadcast').submit(function(event){
-                    socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
-                    return false;
-                })
-
+            socket.on('connect', function(){
+                socket.emit('connection',{});
             })
+            function submit(){
+                console.log("submit")
+                return True
+            }
+            socket.on("response",function(data){
+                const log = document.getElementById("log")
+                console.log(data)
+                if (data != undefined){
+                    log.innerHTML = data.data
+                }
+            })
+            
+        
         </script>
-        </head>
-    <body>
-        <form id="broadcast" method="POST" action='#'>
-            <input type="text" name="broadcast_data" id="broadcast_data" placeholder="Message">
-            <input type="submit" value="Broadcast">
-        </form>
+        <body>
+            <form id="broadcast" method="POST">
+                <input type="text" name="Message" id="Message" placeholder="Message">
+                <input type="submit" onlcick = "submit()">
+            </form>
         <h2>Receive:</h2>
         <div id="log"></div>
     </body>
+    </head>
 </html>
