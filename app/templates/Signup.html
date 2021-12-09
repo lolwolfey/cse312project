@@ -134,23 +134,32 @@ body {
   <br></br>
       <div class = "login">
         <h1> Welcome! </h1>
-        <form action="signup" id="si gnup-form" method="post" enctype="multipart/form-data">
+        <form action="signup" id="signup-form" method="post" enctype="multipart/form-data">
           <input value = {{xsrf}} name = "xsrf_token" hidden> 
           <div class="textf">
             <label for="signup-form-email">Email: </label>
-            <input id="signup-form-email" type="text" name="email"><br/>
+            <input id="signup-form-email" type="text" name="email" required>
           </div>
           <div class="textf">
             <label for="signup-form-name">Username: </label>
-            <input id="signup-form-name" type="text" name="username"><br/>
+            <input id="signup-form-name" type="text" name="username" required>
           </div>
           <div class="textf">
             <label for="form-password">Password: </label>
-            <input id="form-password" type="password" name="password">
+            <input id="form-password" type="password" name="password1" required>
+          </div>
+          <div class="textf">
+            <label for="form-password2">Confirm password: </label>
+            <input id="form-password2" type="password" name="password2" required>
           </div>
           <label for="form-file">Image: </label>
-          <input id="form-file" type="file" name="upload">
+          <input id="form-file" type="file" name="upload" required>
           <input type="submit" value="Sign up">
+          {% if filename %}
+	          <div>
+              <img src="{{ url_for('display_image', filename=filename) }}">
+	          </div>
+          {% endif %}
         </form>
       <div class = "signup">Have an account already? <a href="\"> Log in</a></div>
       <div class = "flashes">

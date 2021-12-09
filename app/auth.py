@@ -1,4 +1,5 @@
 from flask import *
+from flask import current_app
 #from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
@@ -9,17 +10,17 @@ import os
 from .database_handler import init, signup_user, user_login, User#delete when merging
 from pymongo import MongoClient, mongo_client
 from werkzeug.utils import secure_filename
-import string
-import random
+from app import *
+
 
 auth = Blueprint('auth', __name__)
 
 imgcount = 0
-xsrfToken = ""
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth.route("/")
 def initialize():
@@ -48,43 +49,51 @@ def handle_form():
         print(f"REQUEST.FORM = {request.form}")
         username = request.form['username']
         email = request.form['email']
-        password1 = request.form['password']
-        print(f"EMAIL: {email}, PASSWORD: {password1}")
-        valid, error = password_requirements(password1)
-        print(f"VALID: {valid}, ERROR: {error}")
-        if valid == True:
-            if(email_requirements(email) == True):
-                if signup_user(email, username, password1) == True:
-                    flash('Account created', 'info')
-                    return redirect(url_for('auth.login'))
-                elif signup_user(email, username, password1) == False:
-                    flash('That username/email address is already attached to an account.', 'error')
+        password1 = request.form['password1']
+        password2 = request.form['password2']
+        fileflag = 0
+        print(f"EMAIL: {email}, PASSWORD: {password1}, CONFIRM PASS: {password2}")
+        #if 'file' not in request.files:
+        #    flash('No file part', 'error')
+        #    return redirect(request.url)
+        file = request.files['upload']
+        if file and allowed_file(file.filename):
+            print("FILENAME ALLOWED")
+            filename = secure_filename(file.filename)
+            #filename = f"file0{str(imgcount)}.jpg"
+            #basedir = os.path.abspath(os.path.dirname(__file__))
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
+            print('upload_image filename: ' + filename)
+            flash('Image successfully uploaded','info')
+            return render_template('Signup.html', filename=filename)
+        else:
+            flash('Allowed image types are -> png, jpg, jpeg','error')
+            fileflag = 1
+        if password1 == password2 == "":
+            flash('Invalid password entered')
+        if password1 == password2 and fileflag == 0:
+            valid, error = password_requirements(password1)
+            print(f"VALID: {valid}, ERROR: {error}")
+            if valid == True and fileflag == 0:
+                if(email_requirements(email) == True):
+                    if signup_user(email, username, password1) == True:
+                        flash('Account created', 'info')
+                        return redirect(url_for('auth.login'))
+                    elif signup_user(email, username, password1) == False:
+                        flash('That username/email address is already attached to an account.', 'error')
+                else:
+                     flash('Email entered is invalid, try again.', 'error')
             else:
                 for err in error:
                     flash(err, 'error')
-        else:
+        elif password1 == password2 and fileflag == 0:
             flash('Passwords do not match.', 'error')
-        
-        # if 'file' not in request.files:
-        #     flash('No file part', 'error')
-        #     return redirect(request.url)
-        file = request.files['upload']
-        if file.filename == '':
-            flash('No image selected for uploading','error')
-        #return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = "file0"+str(imgcount)+".jpg"
-            print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        #print('upload_image filename: ' + filename)
-            flash('Image successfully uploaded and displayed below','info')
-        #return render_template('Signup.html', filename=filename)
-        else:
-            flash('Allowed image types are -> png, jpg, jpeg','error')
-    #global xsrfToken
-    #xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
-    return render_template("Signup.html",xsrf=xsrfToken)
+             
+    return render_template("Signup.html")
 
+@auth.route('/display/<filename>')
+def display_image(filename):
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
 # The following Password requirements must be met:
 # At least 8 characters long.
 # 3 upper case letters.
@@ -132,7 +141,16 @@ def email_requirements(email):
     else:
         return False
 
+def readImage(fname):
+    with open(fname, 'rb') as file:
+        b = file.read()
+    file.close()
+    return b
 
+def writeImage(fname, content):
+    with open(fname, 'wb') as file:
+        file.write(content)
+    file.close()
 
 @auth.route("/logout", methods=['POST'])
 @login_required
