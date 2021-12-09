@@ -72,9 +72,11 @@ def handle_form():
         print(f"VALID: {valid}, ERROR: {error}")
         if valid == True:
             if(email_requirements(email) == True):
+                
                 if signup_user(email, username, password1) == True:
                     flash('Account created', 'info')
                     if xsrfTokenSent == xsrfToken: 
+                        print(f"{xsrftokensent} = {auth.xsrfToken}")
                         print("test")
                         return redirect(url_for('auth.login'))
                     else:
@@ -91,7 +93,9 @@ def handle_form():
         # if 'file' not in request.files:
         #     flash('No file part', 'error')
         #     return redirect(request.url)
+    print("testing")
     file = request.files['upload']
+    print("testing")
     if file.filename == '':
         flash('No image selected for uploading','error')
     #return redirect(request.url)
@@ -105,10 +109,10 @@ def handle_form():
     else:
         flash('Allowed image types are -> png, jpg, jpeg','error')
     #global xsrfToken
-    xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
-    print(xsrfToken)
+    auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    print(auth.xsrfToken)
     print("Test")
-    return render_template("Signup.html",xsrf=xsrfToken)
+    return render_template("Signup.html",xsrf=auth.xsrfToken)
 
 
 # The following Password requirements must be met:
