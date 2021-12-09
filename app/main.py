@@ -18,14 +18,15 @@ main = Blueprint('main',__name__)
 @main.route("/home")
 @login_required
 def home():
-    print(current_user.username)
+    
     return render_template('index.html')
 
 @socketio.on('connection')
 @login_required
 def connect(methods = ['GET', 'POST']):
     print("response")
-    join_room("room")
+    join_room(current_user.username)
+    print("user",current_user.username)
     print("room successfully joined")
     socketio.emit('response', "response")
 
@@ -39,4 +40,4 @@ def submit(comment, methods = ['GET', 'POST']):
 @login_required
 def direct(comment, nethods = ['GET','POST']):
     print("message to blank sent")
-    socketio.emit('Direct',str(comment), to="room")
+    socketio.emit('Direct',str(comment), to=current_user.username)

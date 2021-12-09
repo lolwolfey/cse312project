@@ -40,6 +40,7 @@
                 })
 
                 $('#sendDirect').on('click', function(){
+                    console.log($("#username").text())
                     socket.emit('direct_message', $("#myDirectMessage").val())
                     $('#myMessage').val('');
                 })
@@ -53,7 +54,7 @@
             <button id="sendbutton">send</button>
         </body>
         <body>
-            <h2>Direct:</h2>
+            <h2 id="username">Direct:</h2>
             <input type="text" id="myDirectMessage">
             <button id="sendDirect">send</button>
         </body>
