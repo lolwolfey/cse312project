@@ -107,7 +107,8 @@ def signup_user(email,username,password):
     if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
         hashedPassword = generate_password_hash(password, method='sha256')
         userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashedPassword}
-        user_ID+=1
+        user_ID = user_ID + 1
+        print("USER_ID_USER",user_ID)
         DB.insert("userDetails",userDetails)
         DB.find_one("userDetails",{"email": email})
         print("SIGNUP SUCCESS")
