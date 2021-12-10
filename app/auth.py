@@ -48,7 +48,9 @@ def login():
 @auth.route("/signup", methods=['POST','GET'])
 def handle_form():
     if request.method == 'POST':
+        print(f"printing this request form")
         print(f"REQUEST.FORM = {request.form}")
+        print(f"eh")
         username = request.form['username']
         email = request.form['email']
         password1 = request.form['password1']
