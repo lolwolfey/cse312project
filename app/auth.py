@@ -12,6 +12,9 @@ from .database_handler import init, signup_user, user_login, saveImageDB, User#d
 from pymongo import MongoClient, mongo_client
 from werkzeug.utils import secure_filename
 from app import *
+import bcrypt
+
+
 
 
 auth = Blueprint('auth', __name__)

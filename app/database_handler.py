@@ -1,9 +1,9 @@
 import sys
 import os
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from pymongo import MongoClient, mongo_client
 import pymongo
+import bcrypt
 
 user_ID = 1
 
@@ -31,7 +31,7 @@ class DB(object):
 class User(UserMixin):
     user_id = user_ID
     username = None
-    hashedPassword = None
+    #hashedPassword = None
     authenticated = False
 
     def __init__(self, user_id, username, password):
@@ -41,9 +41,9 @@ class User(UserMixin):
             user = get_user_by_username(username)
             print(user)
             if user:
-                if check_password_hash(user["password"], password):
+                if checkPasswordHash(user["password"], password, user["salt"]):
                     self.username = user["username"]
-                    self.hashedPassword = user["password"]
+                    #self.hashedPassword = user["password"]
                     self.user_id = user["user_ID"]
                     self.authenticated = True
 
@@ -55,7 +55,7 @@ class User(UserMixin):
             if not user:
                 return None
             self.username = user["username"]
-            self.hashedPassword = user["password"]
+            #self.hashedPassword = user["password"]
             self.user_id = user["user_ID"]
             self.authenticated = True
 
@@ -94,19 +94,25 @@ def user_login(username,password):
     row = DB.find_one("userDetails",{"username":username})
     if row == None:
         return False
-    db_password = row["password"]
-    if not check_password_hash(db_password, password):
-        return False
-    return True
+    hashed = row["password"] #decoded form
+    login_salt = str.encode(row["salt"])
+    hashedPassword = bcrypt.hashpw(password.encode('utf-8'), login_salt)
+    loginPass = hashedPassword.decode()
+    print(f"LOGINPASS: {loginPass}, hashed: {hashed}")
+    if loginPass == hashed:
+        return True
+    return False
     
 def signup_user(email,username,password):
     global user_ID
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
     if (DB.find_one("userDetails",{"email": email}) != None) or (DB.find_one("userDetails",{"username":username}) != None):
         print("SIGNUP FAILED")
         return False
     if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
-        hashedPassword = generate_password_hash(password, method='sha256')
-        userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashedPassword}
+        #hashedPassword = generate_password_hash(password, method='sha256')
+        userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashed.decode(), "salt": salt.decode()}
         user_ID+=1
         DB.insert("userDetails",userDetails)
         DB.find_one("userDetails",{"email": email})
@@ -126,3 +132,10 @@ def get_user_by_id(id):
     
 def saveImageDB(filename,username):
     DB.insert("imageCollection",{username: filename})
+    
+def checkPasswordHash(dbPassword, checkPass, salt):
+    hashedCheck = bcrypt.hashpw(checkPass.encode('utf-8'), salt)
+    if(hashedCheck == dbPassword):
+        return True
+    return False
+    

@@ -11,7 +11,7 @@ import app.database_handler
 from flask_socketio import SocketIO
 
 UPLOAD_FOLDER = 'app/static/uploads/'
-Chat_Upload_Folder = 'app/static/Chat'
+Chat_Upload_Folder = 'app/static/Chat/'
 
 debug = True
 socketio = SocketIO()
