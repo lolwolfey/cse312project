@@ -53,29 +53,14 @@ def handle_form():
         email = request.form['email']
         password1 = request.form['password1']
         password2 = request.form['password2']
-        fileflag = 0
         print(f"EMAIL: {email}, PASSWORD: {password1}, CONFIRM PASS: {password2}")
-        #if 'file' not in request.files:
-        #    flash('No file part', 'error')
-        #    return redirect(request.url)
-        file = request.files['upload']
-        if file and allowed_file(file.filename):
-            print("FILENAME ALLOWED")
-            filename = secure_filename(file.filename)
-            #filename = f"file0{str(imgcount)}.jpg"
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
-            print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),username)
-            flash('Image successfully uploaded','info')
-        else:
-            flash('Allowed image types are -> png, jpg, jpeg','error')
-            fileflag = 1
+
         if password1 == password2 == "":
             flash('Invalid password entered')
-        if password1 == password2 and fileflag == 0:
+        if password1 == password2:
             valid, error = password_requirements(password1)
             print(f"VALID: {valid}, ERROR: {error}")
-            if valid == True and fileflag == 0:
+            if valid == True:
                 if(email_requirements(email) == True):
                     if signup_user(email, username, password1) == True:
                         flash('Account created', 'info')
@@ -87,14 +72,11 @@ def handle_form():
             else:
                 for err in error:
                     flash(err, 'error')
-        elif password1 == password2 and fileflag == 0:
+        elif password1 != password2:
             flash('Passwords do not match.', 'error')
              
     return render_template("Signup.html")
 
-@auth.route('/display/<filename>')
-def display_image(filename):
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
 # The following Password requirements must be met:
 # At least 8 characters long.
 # 3 upper case letters.

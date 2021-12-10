@@ -73,8 +73,11 @@
                 </div>
             </nav>
             <section class="team-boxed">
-                <label class="form-label" for="customFile">Upload An Image to the canvas!</label>
-                <input type="file" class="form-control" id="customFile" />
+                <form action="/home" id="image-form" method="post" enctype="multipart/form-data">
+                    <label class="form-label" for="upload">Upload An Image to the canvas!</label>
+                    <input type="file" class="form-control" id="upload" name="upload"/>
+                    <input type="submit" value="Upload!"/>
+                </form>
                 <div class="container">
                     <div class="row people">
                         <div class="col">
@@ -119,18 +122,11 @@
                                 <h3 class="name">Latest Image Uploaded<i style="color: #65F0BD; " class="fas fa-cogs"></i></a>
                                 </h3>
         
-                                <image src="{{ url_for('static', filename='uploads/{{imagedump[0]}}')}}"></image>
+                                <image src="{{ url_for('main.display_image', filename=filename )}}"></image>
         
                             </div>
                         </div>
                         
-                    </div>
-                    <div class="box">
-                        <h3 class="name">Image Canvas<i style="color: #C2D655; " class="fas fa-cogs"></i></a> </h3>
-        
-                        {% for x in range(0, lenimage)%}
-                            <image src="{{ url_for('static', filename='uploads/{{imagedump[x]}}')}}"></image>
-                        {% endfor %}
                     </div>
                 </div>
             </section>
