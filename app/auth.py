@@ -1,16 +1,13 @@
-from posixpath import abspath
 from flask import *
 from flask import current_app
 #from . import db
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 #from .models import User
 import sys
 #import psycopg2
 import os
-from .database_handler import init, signup_user, user_login, saveImageDB, User#delete when merging
+from .database_handler import init, signup_user, user_login, saveImageDB, id_by_username, User#delete when merging
 from pymongo import MongoClient, mongo_client
-from werkzeug.utils import secure_filename
 from app import *
 import bcrypt
 
@@ -23,9 +20,6 @@ imgcount = 0
 userid = 0
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
-def allowed_file(filename):
-    print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth.route("/")
 def initialize():
@@ -41,7 +35,9 @@ def login():
         user = User(None,username,password)
         if user.login(username, password):
             login_user(user, remember=True)
-            print("SUCCESFULLY LOGGED IN!")
+            print(f"SUCCESFULLY LOGGED IN!")
+            #sendid = id_by_username(username)
+            print(f"SEND THIS ID: {current_user.username}")
             return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.', 'error')
@@ -50,47 +46,37 @@ def login():
 
 @auth.route("/signup", methods=['POST','GET'])
 def handle_form():
+    global imgcount
     if request.method == 'POST':
         print(f"REQUEST.FORM = {request.form}")
         username = request.form['username']
         email = request.form['email']
         password1 = request.form['password1']
         password2 = request.form['password2']
-        fileflag = 0
         print(f"EMAIL: {email}, PASSWORD: {password1}, CONFIRM PASS: {password2}")
         #if 'file' not in request.files:
         #    flash('No file part', 'error')
         #    return redirect(request.url)
         file = request.files['upload']
-        if file and allowed_file(file.filename):
-            print("FILENAME ALLOWED")
-            filename = secure_filename(file.filename)
-            #filename = f"file0{str(imgcount)}.jpg"
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
-            print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),username)
-            flash('Image successfully uploaded','info')
-        else:
-            flash('Allowed image types are -> png, jpg, jpeg','error')
-            fileflag = 1
         if password1 == password2 == "":
             flash('Invalid password entered')
-        if password1 == password2 and fileflag == 0:
+        if password1 == password2:
             valid, error = password_requirements(password1)
             print(f"VALID: {valid}, ERROR: {error}")
-            if valid == True and fileflag == 0:
+            if valid == True:
                 if(email_requirements(email) == True):
-                    if signup_user(email, username, password1) == True:
+                    if signup_user(email, username, password1,file,imgcount) == True:
+                        imgcount+=1
                         flash('Account created', 'info')
                         return redirect(url_for('auth.login'))
-                    elif signup_user(email, username, password1) == False:
-                        flash('That username/email address is already attached to an account.', 'error')
+                    elif signup_user(email, username, password1,file,imgcount) == False:
+                        flash('That username/email address is already attached to an account or image you uploaded is not of type .png, .jpg, .jpeg', 'error')
                 else:
                      flash('Email entered is invalid, try again.', 'error')
             else:
                 for err in error:
                     flash(err, 'error')
-        elif password1 == password2 and fileflag == 0:
+        elif password1 != password2:
             flash('Passwords do not match.', 'error')
              
     return render_template("Signup.html")

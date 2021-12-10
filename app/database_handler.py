@@ -4,7 +4,9 @@ from flask_login import UserMixin
 from pymongo import MongoClient, mongo_client
 import pymongo
 import bcrypt
+from flask import current_app
 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 user_ID = 1
 
 class DB(object):
@@ -28,10 +30,10 @@ class DB(object):
         return DB.DATABASE[collection].find_one(query)
     
 
-class User(UserMixin):
-    user_id = user_ID
+class User:
+    user_id = user_ID #global
     username = None
-    #hashedPassword = None
+    password = None
     authenticated = False
 
     def __init__(self, user_id, username, password):
@@ -43,24 +45,23 @@ class User(UserMixin):
             if user:
                 if checkPasswordHash(user["password"], password, user["salt"]):
                     self.username = user["username"]
-                    #self.hashedPassword = user["password"]
+                    self.password = bcrypt.hashpw(user["password"].encode('utf-8'), user["salt"].encode('utf-8'))
                     self.user_id = user["user_ID"]
                     self.authenticated = True
+                    print(f"self.user_id: {self.user_id}")
 
-        if self.username == None and password == None:
+        elif self.username == None and password == None:
             print("userid!=None")
             print(f"userID: {self.user_id}")
             user = get_user_by_id(self.user_id)
             print(f"USER ROW:{user}")
-            if not user:
-                return None
-            self.username = user["username"]
-            #self.hashedPassword = user["password"]
-            self.user_id = user["user_ID"]
-            self.authenticated = True
-
-        # else:
-        #     return None
+            if user:
+                self.username = user["username"]
+                self.password = bcrypt.hashpw(user["password"].encode('utf-8'), user["salt"].encode('utf-8'))
+                self.user_id = user["user_ID"]
+                self.authenticated = True
+        else:
+            return None
 
     def login(self, username, password):
         if user_login(username, password):
@@ -103,8 +104,9 @@ def user_login(username,password):
         return True
     return False
     
-def signup_user(email,username,password):
+def signup_user(email,username,password,file,imgcount):
     global user_ID
+    fileflag = 0
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
     if (DB.find_one("userDetails",{"email": email}) != None) or (DB.find_one("userDetails",{"username":username}) != None):
@@ -112,12 +114,21 @@ def signup_user(email,username,password):
         return False
     if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
         #hashedPassword = generate_password_hash(password, method='sha256')
-        userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashed.decode(), "salt": salt.decode()}
-        user_ID+=1
-        DB.insert("userDetails",userDetails)
-        DB.find_one("userDetails",{"email": email})
-        print("SIGNUP SUCCESS")
-        return True #signup pass
+        if file and allowed_file(file.filename):
+            print("FILENAME ALLOWED")
+            filename = f"file0{str(imgcount)}.jpg"
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
+            print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),username)
+        else:
+            fileflag = 1
+        if(fileflag == 0):
+            userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashed.decode(), "salt": salt.decode()}
+            user_ID+=1
+            DB.insert("userDetails",userDetails)
+            DB.find_one("userDetails",{"email": email})
+            print("SIGNUP SUCCESS")
+            return True #signup pass
     return False #signup failed
 
 def get_user_by_username(username):
@@ -134,8 +145,17 @@ def saveImageDB(filename,username):
     DB.insert("imageCollection",{username: filename})
     
 def checkPasswordHash(dbPassword, checkPass, salt):
-    hashedCheck = bcrypt.hashpw(checkPass.encode('utf-8'), salt)
+    hashedCheck = bcrypt.hashpw(checkPass.encode('utf-8'), salt.encode('utf-8'))
     if(hashedCheck == dbPassword):
         return True
     return False
     
+def allowed_file(filename):
+    print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def id_by_username(username):
+    row = DB.find_one("userDetails",{"username": username})
+    if row == None:
+        return None
+    return row["user_ID"]

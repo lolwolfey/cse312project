@@ -22,12 +22,13 @@ def create_app():
     database_handler.DB.init()
     
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['Chat_Upload_Folder'] == Chat_Upload_Folder
+    app.config['Chat_Upload_Folder'] = Chat_Upload_Folder
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
     app.config['SECRET_KEY'] = b'\nI\x18]\xc3\x96m*@\xbffG\xf5a.X'
 
     app.config.update(
         DEBUG = True,
+        
         #email settings
     )
 
