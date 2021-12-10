@@ -1,4 +1,6 @@
+from posixpath import abspath
 from flask import *
+from flask import current_app
 #from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
@@ -6,20 +8,23 @@ from flask_login import login_user, login_required, logout_user, current_user
 import sys
 #import psycopg2
 import os
-from .database_handler import init, signup_user, user_login, User#delete when merging
+from .database_handler import init, signup_user, user_login, saveImageDB, User#delete when merging
 from pymongo import MongoClient, mongo_client
 from werkzeug.utils import secure_filename
-import string
+from app import *
 import random
+import string
+
 
 auth = Blueprint('auth', __name__)
 
 imgcount = 0
-xsrfToken = ""
+userid = 0
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth.route("/")
 def initialize():
@@ -29,6 +34,12 @@ def initialize():
 @auth.route("/login", methods =['POST', 'GET'])
 def login():
     if request.method == 'POST':
+        xsrfTokenSent = request.form["xsrf_token"]
+        print(xsrfTokenSent)
+        if xsrfTokenSent != auth.xsrfToken: 
+            print(f"{xsrftokensent} = {auth.xsrfToken}")
+            print("test")
+            return render_template("Error.html")
         username = request.form['username']
         password = request.form['password']
         xsrftokensent = request.form['xsrf_token']
@@ -39,20 +50,15 @@ def login():
         if user.login(username, password):
             login_user(user, remember=True)
             print("SUCCESFULLY LOGGED IN!")
-            print(f"{xsrftokensent} = {auth.xsrfToken}")
-            if xsrftokensent == xsrfToken: 
-                login_user(user, remember=True)
-                print("SUCCESFULLY LOGGED IN!")
-                return redirect(url_for('main.home'))
-            else:
-                flash('you tryna hack us?', 'error')
+            return redirect(url_for('main.home'))
+           
 
             return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.', 'error')
     auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
-    test = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
-    print(test)
+    #test = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+   # print(test)
     print("why is this not working")
     print(f"xsrf: {auth.xsrfToken}")
     return render_template("Login.html",xsrf=auth.xsrfToken)
@@ -61,60 +67,63 @@ def login():
 @auth.route("/signup", methods=['POST','GET'])
 def handle_form():
     if request.method == 'POST':
+        xsrfTokenSent = request.form["xsrf_token"]
+        print(xsrfTokenSent)
+        if xsrfTokenSent != auth.xsrfToken: 
+            print(f"{xsrftokensent} = {auth.xsrfToken}")
+            print("test")
+            return render_template("Error.html")
+
         print(f"REQUEST.FORM = {request.form}")
         username = request.form['username']
         email = request.form['email']
-        password1 = request.form['password']
-        xsrfTokenSent = request.form["xsrf_token"]
-        print(xsrfTokenSent)
-        print(f"EMAIL: {email}, PASSWORD: {password1}")
-        valid, error = password_requirements(password1)
-        print(f"VALID: {valid}, ERROR: {error}")
-        if valid == True:
-            if(email_requirements(email) == True):
-                
-                if signup_user(email, username, password1) == True:
-                    flash('Account created', 'info')
-                    if xsrfTokenSent == xsrfToken: 
-                        print(f"{xsrftokensent} = {auth.xsrfToken}")
-                        print("test")
+        password1 = request.form['password1']
+        password2 = request.form['password2']
+        fileflag = 0
+        print(f"EMAIL: {email}, PASSWORD: {password1}, CONFIRM PASS: {password2}")
+        #if 'file' not in request.files:
+        #    flash('No file part', 'error')
+        #    return redirect(request.url)
+        file = request.files['upload']
+        if file and allowed_file(file.filename):
+            print("FILENAME ALLOWED")
+            filename = secure_filename(file.filename)
+            #filename = f"file0{str(imgcount)}.jpg"
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
+            print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),username)
+            flash('Image successfully uploaded','info')
+        else:
+            flash('Allowed image types are -> png, jpg, jpeg','error')
+            fileflag = 1
+        if password1 == password2 == "":
+            flash('Invalid password entered')
+        if password1 == password2 and fileflag == 0:
+            valid, error = password_requirements(password1)
+            print(f"VALID: {valid}, ERROR: {error}")
+            if valid == True and fileflag == 0:
+                if(email_requirements(email) == True):
+                    if signup_user(email, username, password1) == True:
+                        flash('Account created', 'info')
                         return redirect(url_for('auth.login'))
-                    else:
-                            flash('you tryna hack us?', 'error')
-                    
-                elif signup_user(email, username, password1) == False:
-                    flash('That username/email address is already attached to an account.', 'error')
+                    elif signup_user(email, username, password1) == False:
+                        flash('That username/email address is already attached to an account.', 'error')
+                else:
+                     flash('Email entered is invalid, try again.', 'error')
             else:
                 for err in error:
                     flash(err, 'error')
-        else:
+        elif password1 == password2 and fileflag == 0:
             flash('Passwords do not match.', 'error')
-        
-        # if 'file' not in request.files:
-        #     flash('No file part', 'error')
-        #     return redirect(request.url)
-    # print("testing")
-    # file = request.files['upload']
-    # print("testing")
-    # if file.filename == '':
-    #     flash('No image selected for uploading','error')
-    # #return redirect(request.url)
-    # if file and allowed_file(file.filename):
-    #     filename = "file0"+str(imgcount)+".jpg"
-    #     print(f"app.config upload folder; {app.config['UPLOAD_FOLDER']}")
-    #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    # #print('upload_image filename: ' + filename)
-    #     flash('Image successfully uploaded and displayed below','info')
-    # #return render_template('Signup.html', filename=filename)
-    # else:
-    #     flash('Allowed image types are -> png, jpg, jpeg','error')
-    #global xsrfToken
     auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
     print(auth.xsrfToken)
     print("Test")
     return render_template("Signup.html",xsrf=auth.xsrfToken)
+    #return render_template("Signup.html")
 
-
+@auth.route('/display/<filename>')
+def display_image(filename):
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
 # The following Password requirements must be met:
 # At least 8 characters long.
 # 3 upper case letters.
