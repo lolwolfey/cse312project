@@ -16,13 +16,8 @@ from app import *
 
 auth = Blueprint('auth', __name__)
 
-imgcount = 0
-userid = 0
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+loggedInUsers= []
 
-def allowed_file(filename):
-    print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth.route("/")
 def initialize():
@@ -37,6 +32,8 @@ def login():
         print(f"USERNAME: {username} PASSWORD: {password}")
         user = User(None,username,password)
         if user.login(username, password):
+            print(f"FINALCHECK OF USER B4 LOGIN: {user.username} {user.user_id}")
+            loggedInUsers.append(user.username)
             login_user(user, remember=True)
             print("SUCCESFULLY LOGGED IN!")
             return redirect(url_for('main.home'))

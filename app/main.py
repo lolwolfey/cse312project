@@ -10,16 +10,17 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from .database_handler import init, update_user_id, User, saveImageDB #delete when merging?
 from flask_login import current_user
 from . import socketio
-from app import database_handler
+from app import database_handler,auth
 import requests
-
+from .auth import loggedInUsers
 
 main = Blueprint('main',__name__)
 
-onlineusers = []
+#onlineusers = []
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 imagecount = 0
 imageNames = []
+
 def allowed_file(filename):
     print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -41,18 +42,16 @@ def home():
             saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username)
             imageNames.append(filename)
             print(f"IMAGE NAMES {imageNames}")
-            return render_template('index.html',filename=filename, len = len(onlineusers), onlineuserslist=onlineusers,imagedump=imageNames)
+            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers,imagedump=imageNames)
             #image uploaded success
         else:
-            flash('Allowed image types are -> png, jpg, jpeg','error')
+            flash('Allowed image types are -> png, jpg, jpeg','error') #add flash template in index.html file
             fileflag = 1
         
 
     #html templates to render
-
-    if not (current_user.username in onlineusers):
-        onlineusers.append(current_user.username)
-    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers,imagedump = imageNames,lenimage=imagecount)
+    print(f"LOGGED IN USERS:{loggedInUsers}")
+    return render_template('index.html', len = len(loggedInUsers), onlineuserslist = loggedInUsers,imagedump = imageNames,lenimage=imagecount)
 
 
 @main.route('/display/<filename>')
@@ -64,7 +63,7 @@ def display_image(filename):
 @login_required
 def connect(methods = ['GET', 'POST']):
     print("response")
-    print(onlineusers)
+    print(loggedInUsers)
     join_room(current_user.username)
     print("user",current_user.username)
     print("room successfully joined")
@@ -89,11 +88,11 @@ def direct(comment, methods = ['GET','POST']):
 @login_required
 def change(username, methods = ['GET','POST']):
     database_handler.update_user_id(current_user.username,username)
-    onlineusers[onlineusers.index(current_user.username)] = username
+    loggedInUsers[loggedInUsers.index(current_user.username)] = username
     current_user.username = username
     print(current_user.username)
     print("Recieved socket request, changing username to: " + str(username))
     print("current username is now changed to: " + current_user.username)
     #should just reload template with new username so no need to socket emit again
     
-    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers, username=current_user.username)
+    return render_template('index.html', len = len(loggedInUsers), onlineuserslist = loggedInUsers, username=current_user.username)
