@@ -119,7 +119,7 @@
                                 <h3 class="name">Latest Image Uploaded<i style="color: #65F0BD; " class="fas fa-cogs"></i></a>
                                 </h3>
         
-                                {{ latestimage }}
+                                <image src="{{ url_for('static', filename='uploads/{{imagedump[0]}}')}}"></image>
         
                             </div>
                         </div>
@@ -128,7 +128,9 @@
                     <div class="box">
                         <h3 class="name">Image Canvas<i style="color: #C2D655; " class="fas fa-cogs"></i></a> </h3>
         
-                        {{ imagecanvas }}
+                        {% for x in range(0, lenimage)%}
+                            <image src="{{ url_for('static', filename='uploads/{{imagedump[x]}}')}}"></image>
+                        {% endfor %}
                     </div>
                 </div>
             </section>
