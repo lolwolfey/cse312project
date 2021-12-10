@@ -18,13 +18,7 @@ onlineusers = []
 @login_required
 def home():
     #html templates to render
-    usertext = ""
-    if onlineusers:
-        for user in onlineusers:
-            usertext += "<li id='user'" + onlineusers.index(user) + ">" + user + "</li><input type='text' id='myMessage'" + onlineusers.index(user) + "><button id='sendbutton" + onlineusers.index(user) + "'>send</button>"
-    else:
-        usertext = "There are no online users"
-    return render_template('index.html', onlineuserslist = usertext)
+    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers)
 
 @socketio.on('connection')
 @login_required
@@ -45,6 +39,17 @@ def submit(comment, methods = ['GET', 'POST']):
 
 @socketio.on('direct_message')
 @login_required
-def direct(comment, nethods = ['GET','POST']):
+def direct(comment, Methods = ['GET','POST']):
     print("message to blank sent")
-    socketio.emit('Direct',str(comment), to=current_user.username)
+    message = comment['myMessage']
+    user = comment['usertomessage']
+    result = str(user) + " has sent the message: " + str(message)
+    socketio.emit('Direct',result, to=current_user.username)
+
+@socketio.on('imageUpload')
+@login_required
+def updateLatestImage(image, Methods = ['GET','POST']):
+    print(image)
+    message = str(current_user.username) + " has uploaded the above image."
+    socketio.emit('updatelatestimage', image)
+    socketio.emit('updatelatestimageuser', message)
