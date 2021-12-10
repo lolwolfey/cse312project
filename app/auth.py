@@ -10,6 +10,8 @@ from .database_handler import init, signup_user, user_login, saveImageDB, id_by_
 from pymongo import MongoClient, mongo_client
 from app import *
 import bcrypt
+import random
+import string
 
 
 
@@ -31,6 +33,11 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        xsrfTokenSent = request.form["xsrf_token"]
+        if xsrfTokenSent != auth.xsrfToken: 
+            print(f"{xsrfTokenSent} = {auth.xsrfToken}")
+            print("test")
+            return render_template("Error.html")
         print(f"USERNAME: {username} PASSWORD: {password}")
         user = User(None,username,password)
         if user.login(username, password):
@@ -42,13 +49,23 @@ def login():
         else:
             flash('Invalid username or password.', 'error')
 
-    return render_template("Login.html")
+    auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    #test = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+   # print(test)
+    print("why is this not working")
+    print(f"xsrf: {auth.xsrfToken}")
+    return render_template("Login.html",xsrf=auth.xsrfToken)
 
 @auth.route("/signup", methods=['POST','GET'])
 def handle_form():
     global imgcount
     if request.method == 'POST':
         print(f"REQUEST.FORM = {request.form}")
+        xsrfTokenSent = request.form["xsrf_token"]
+        if(xsrfTokenSent != auth.xsrfToken):
+            print(f"{xsrfTokenSent} = {auth.xsrfToken}")
+            print("test")
+            return render_template("Error.html")
         username = request.form['username']
         email = request.form['email']
         password1 = request.form['password1']
@@ -78,8 +95,11 @@ def handle_form():
                     flash(err, 'error')
         elif password1 != password2:
             flash('Passwords do not match.', 'error')
-             
-    return render_template("Signup.html")
+    auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    print(auth.xsrfToken)
+    print("Test")
+    return render_template("Signup.html",xsrf=auth.xsrfToken)         
+
 
 @auth.route('/display/<filename>')
 def display_image(filename):
