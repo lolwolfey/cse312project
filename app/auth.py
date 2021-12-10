@@ -142,8 +142,6 @@ def email_requirements(email):
     else:
         return False
 
-
-
 @auth.route("/logout", methods=['POST'])
 @login_required
 def logout():

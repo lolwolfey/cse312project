@@ -51,20 +51,23 @@
                     $('#myMessage').val('');
                 })
 
+                $('#userchangebutton').on('click', function(){
+                    socket.emit('usernamechange', $('#usernamechange').val())
+                    $('#usernamechange').val('');
+                })
+
             })
         </script>
         </head>
         <body>
             <nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #1E2833;">
-                <div class="container"><a class="navbar-brand" href="home.html" style="color: #ffffff;">UBIMG</a><button
+                <div class="container"><a class="navbar-brand" href="/home" style="color: #ffffff;">UBIMG</a><button
                         data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-2"><span
                             class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navcol-2">
                         <ul class="navbar-nav me-auto">
-                            <li class="nav-item"><a class="nav-link" href="Profile.html"
-                                    style="color: var(--bs-white);">Profile</a></li>
                         </ul><span class="navbar-text actions"> <a class="btn btn-light w-100" id="log out" role="button"
-                                style="background: rgb(33, 74, 128);color: var(--bs-white);" href="index.html">Log
+                                style="background: rgb(33, 74, 128);color: var(--bs-white);" href="/home">Log
                                 out</a></span>
                     </div>
                 </div>
@@ -98,6 +101,17 @@
 
                                 <p class="description"></p>
                                 <ul class="list-group"></ul>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="box">
+                                <h3 class="name">Change your username here!:<i style="color: #65F0BD; " class="fas fa-cogs"></i></a>
+                                </h3>
+
+                                <p>Enter the username you wish to change to: </p>
+                                <input type='text' id='usernamechange'>
+                                <button id="userchangebutton">submit</button>
+        
                             </div>
                         </div>
                         <div class="col">
