@@ -1,7 +1,6 @@
 from typing import AsyncContextManager
 from flask import Flask, render_template
 from flask.blueprints import Blueprint
-from flask.wrappers import Response
 from flask_login.utils import login_required
 import requests
 from pymongo import MongoClient, mongo_client
@@ -11,7 +10,6 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import current_user
 from . import socketio
 
-
 main = Blueprint('main',__name__)
 
 onlineusers = []
@@ -19,16 +17,16 @@ onlineusers = []
 @main.route("/home")
 @login_required
 def home():
-    
-    return render_template('index.html')
+    #html templates to render
+    if not (current_user.username in onlineusers):
+        onlineusers.append(current_user.username)
+    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers)
 
 @socketio.on('connection')
 @login_required
 def connect(methods = ['GET', 'POST']):
     print("response")
     join_room(current_user.username)
-    if not (current_user.username in onlineusers):
-        onlineusers.append(current_user.username)
     print("user",current_user.username)
     print("room successfully joined")
     socketio.emit('response', "response")
@@ -41,7 +39,9 @@ def submit(comment, methods = ['GET', 'POST']):
 
 @socketio.on('direct_message')
 @login_required
-def direct(comment, nethods = ['GET','POST']):
+def direct(comment, methods = ['GET','POST']):
     print("message to blank sent")
-    print(onlineusers)
-    socketio.emit('Direct',str(comment), to=current_user.username)
+    message = comment['message']
+    user = comment['username']
+    result = str(user) + " has sent the message: " + str(message)
+    socketio.emit('Direct',result, to=user)
