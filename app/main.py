@@ -39,9 +39,9 @@ def home():
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
             print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username)
-            imageNames.append(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            print(f"TEMPLATE IMAGE NAME FILE {imageNames[0]}")
-            return render_template('index.html',filename=filename, len = len(onlineusers), onlineuserslist=onlineusers)
+            imageNames.append(filename)
+            print(f"IMAGE NAMES {imageNames}")
+            return render_template('index.html',filename=filename, len = len(onlineusers), onlineuserslist=onlineusers,imagedump=imageNames)
             #image uploaded success
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error')
@@ -49,9 +49,10 @@ def home():
         
 
     #html templates to render
+
     if not (current_user.username in onlineusers):
         onlineusers.append(current_user.username)
-    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers)
+    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers,imagedump = imageNames,lenimage=imagecount)
 
 
 @main.route('/display/<filename>')

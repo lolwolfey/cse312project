@@ -128,6 +128,14 @@
                         </div>
                         
                     </div>
+                    <div class="box">
+                        <h3 class="name">Image Canvas<i style="color: #C2D655; " class="fas fa-cogs"></i></a> </h3>
+        
+                        {% for filen in imagedump %}
+                            <image src="{{ url_for('main.display_image', filename=filen) }}"></image>
+                            <br/>
+                        {% endfor %}
+                    </div>
                 </div>
             </section>
             <script src="assets/bootstrap/js/bootstrap.min.js"></script>
