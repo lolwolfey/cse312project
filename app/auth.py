@@ -1,7 +1,7 @@
 from flask import *
 from flask import current_app
 #from . import db
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_user, login_required, logout_user
 #from .models import User
 import sys
 #import psycopg2
@@ -28,10 +28,9 @@ def login():
         password = request.form['password']
         print(f"USERNAME: {username} PASSWORD: {password}")
         user = User(None,username,password)
-        if current_user.login(username, password):
-            print(f"FINALCHECK OF CURRENT_USER B4 LOGIN: {current_user.username} {current_user.user_id}")
+        if user.login(username, password):
             loggedInUsers.append(user.username)
-            login_user(current_user,remember=True)
+            login_user(user,remember=True)
             print(f"FINALCHECK OF USER AFTER LOGIN: {user.username} {user.user_id}")
             print("SUCCESFULLY LOGGED IN!")
             return redirect(url_for('main.home'))

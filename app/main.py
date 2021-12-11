@@ -31,29 +31,26 @@ def allowed_file(filename):
 def home():
     global imagecount
     if request.method == 'POST':
-        fileflag = 0
         file = request.files['upload']
         if file and allowed_file(file.filename):
             print(f"FILENAME ALLOWED {file.filename}")
-                #filename = secure_filename(file.filename)
             filename = f"file0{str(imagecount)}.jpg"
             imagecount = imagecount + 1
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)) #/static/uploads/filename
             print('upload_image filename: ' + os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username)
+            saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username) #never used
             imageNames.append(filename)
             print(f"IMAGE NAMES {imageNames}")
-            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers,imagedump=imageNames, uploaded=True,upvote=0)
+            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers, uploaded=True,upvote=0)
             #image uploaded success
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error') #add flash template in index.html file
-            fileflag = 1
         
 
     #html templates to render
     print(f"LOGGED IN USERS:{loggedInUsers}")
     print(f"CURRENT USER LOGGED IN: {current_user.username}")
-    return render_template('index.html', len = len(loggedInUsers), onlineuserslist = loggedInUsers,imagedump = imageNames,lenimage=imagecount)
+    return render_template('index.html',len = len(loggedInUsers), onlineuserslist = loggedInUsers,lenimage=imagecount)
 
 
 @main.route('/display/<filename>')
