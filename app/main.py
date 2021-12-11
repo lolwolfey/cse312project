@@ -20,6 +20,7 @@ main = Blueprint('main',__name__)
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 imagecount = 0
 imageNames = []
+global_filename = ""
 
 def allowed_file(filename):
     print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
@@ -33,7 +34,7 @@ def home():
         fileflag = 0
         file = request.files['upload']
         if file and allowed_file(file.filename):
-            print("FILENAME ALLOWED")
+            print(f"FILENAME ALLOWED {file.filename}")
                 #filename = secure_filename(file.filename)
             filename = f"file0{str(imagecount)}.jpg"
             imagecount = imagecount + 1
@@ -42,7 +43,7 @@ def home():
             saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username)
             imageNames.append(filename)
             print(f"IMAGE NAMES {imageNames}")
-            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers,imagedump=imageNames)
+            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers,imagedump=imageNames, uploaded=True,upvote=0)
             #image uploaded success
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error') #add flash template in index.html file
@@ -51,6 +52,7 @@ def home():
 
     #html templates to render
     print(f"LOGGED IN USERS:{loggedInUsers}")
+    print(f"CURRENT USER LOGGED IN: {current_user.username}")
     return render_template('index.html', len = len(loggedInUsers), onlineuserslist = loggedInUsers,imagedump = imageNames,lenimage=imagecount)
 
 
@@ -96,3 +98,12 @@ def change(username, methods = ['GET','POST']):
     #should just reload template with new username so no need to socket emit again
     
     return render_template('index.html', len = len(loggedInUsers), onlineuserslist = loggedInUsers, username=current_user.username)
+
+@socketio.on('upvote')
+@login_required
+def upvote(upvotes, methods = ['GET','POST']):
+    print("upvote request recieved")
+    print(f"UPVOTES: {upvotes}")
+    result = int(upvotes) + 1
+    print(f"RESULT: {str(result)}")
+    socketio.emit('upvote_received', result)

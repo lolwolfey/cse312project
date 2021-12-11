@@ -1,8 +1,6 @@
-from posixpath import abspath
 from flask import *
 from flask import current_app
 #from . import db
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 #from .models import User
 import sys
@@ -10,7 +8,6 @@ import sys
 import os
 from .database_handler import init, signup_user, user_login, saveImageDB, User#delete when merging
 from pymongo import MongoClient, mongo_client
-from werkzeug.utils import secure_filename
 from app import *
 
 
@@ -31,10 +28,11 @@ def login():
         password = request.form['password']
         print(f"USERNAME: {username} PASSWORD: {password}")
         user = User(None,username,password)
-        if user.login(username, password):
-            print(f"FINALCHECK OF USER B4 LOGIN: {user.username} {user.user_id}")
+        if current_user.login(username, password):
+            print(f"FINALCHECK OF CURRENT_USER B4 LOGIN: {current_user.username} {current_user.user_id}")
             loggedInUsers.append(user.username)
-            login_user(user, remember=True)
+            login_user(current_user,remember=True)
+            print(f"FINALCHECK OF USER AFTER LOGIN: {user.username} {user.user_id}")
             print("SUCCESFULLY LOGGED IN!")
             return redirect(url_for('main.home'))
         else:

@@ -43,6 +43,11 @@
                     alert(msg)
                 });
 
+                socket.on('upvote_received', function(upvote){
+                    $("#numupvote").html(upvote);
+                    console.log(upvote);
+                });
+
                 $('#sendbutton').on('click', function(){
                     socket.emit('direct_message', {
                         username: $("#usertomessage").val(),
@@ -54,6 +59,10 @@
                 $('#userchangebutton').on('click', function(){
                     socket.emit('usernamechange', $('#usernamechange').val())
                     $('#usernamechange').val('');
+                })
+
+                $('#updateupvote').on('click', function(){
+                    socket.emit('upvote', $('#numupvotes').text())
                 })
 
             })
@@ -123,6 +132,12 @@
                                 </h3>
         
                                 <image src="{{ url_for('main.display_image', filename=filename )}}"></image>
+                                
+                                {% if uploaded %}
+                                    <p>Upvotes: </p>
+                                    <p id="numupvotes">0</p>
+                                    <button id="updateupvote">upvote</button>
+                                {% endif %}
         
                             </div>
                         </div>
