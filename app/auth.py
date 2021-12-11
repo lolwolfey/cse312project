@@ -10,6 +10,7 @@ from .database_handler import init, signup_user, user_login, saveImageDB, User#d
 from pymongo import MongoClient, mongo_client
 from app import *
 
+user_ID = 1
 
 auth = Blueprint('auth', __name__)
 
