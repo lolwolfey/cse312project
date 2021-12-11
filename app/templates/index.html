@@ -81,6 +81,7 @@
             </nav>
             <section class="team-boxed">
                 <form action="/home" id="image-form" method="post" enctype="multipart/form-data">
+                    <input value = {{xsrf}} name = "xsrf_token" hidden> 
                     <label class="form-label" for="upload">Upload An Image to the canvas!</label>
                     <input type="file" class="form-control" id="upload" name="upload"/>
                     <input type="submit" value="Upload!"/>

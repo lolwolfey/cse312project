@@ -13,6 +13,8 @@ from . import socketio
 from app import database_handler,auth
 import requests
 from .auth import loggedInUsers
+import random
+import string
 
 main = Blueprint('main',__name__)
 
@@ -34,6 +36,9 @@ def home():
     global userrn
     if request.method == 'POST':
         file = request.files['upload']
+        xsrfToken = request.form['xsrf_token']
+        if(xsrfToken != main.xsrfToken):
+            render_template("Error.html")
         if file and allowed_file(file.filename):
             print(f"FILENAME ALLOWED {file.filename}")
             filename = f"file0{str(imagecount)}.jpg"
@@ -50,10 +55,11 @@ def home():
         
 
     #html templates to render
+    main.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
     print(f"LOGGED IN USERS:{loggedInUsers}")
     print(f"CURRENT USER LOGGED IN: {current_user.username}")
     userrn = str(current_user.username)
-    return render_template('index.html',len = len(loggedInUsers), onlineuserslist = loggedInUsers,lenimage=imagecount)
+    return render_template('index.html',len = len(loggedInUsers), onlineuserslist = loggedInUsers,lenimage=imagecount,xsrf=main.xsrfToken)
 
 
 @main.route('/display/<filename>')

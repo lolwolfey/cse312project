@@ -9,6 +9,8 @@ import os
 from .database_handler import init, signup_user, user_login, saveImageDB, User#delete when merging
 from pymongo import MongoClient, mongo_client
 from app import *
+import random
+import string
 
 user_ID = 1
 
@@ -27,7 +29,12 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        xsrfTokenSent = request.form["xsrf_token"]
+        if xsrfTokenSent != auth.xsrfToken: 
+            print("test")
+            return render_template("Error.html")
         print(f"USERNAME: {username} PASSWORD: {password}")
+        xsrftokensent = request.form['xsrf_token']
         user = User(None,username,password)
         if user.login(username, password):
             loggedInUsers.append(user.username)
@@ -37,8 +44,8 @@ def login():
             return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.', 'error')
-
-    return render_template("Login.html")
+    auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+    return render_template("Login.html",xsrf=auth.xsrfToken)
 
 @auth.route("/signup", methods=['POST','GET'])
 def handle_form():
@@ -48,8 +55,12 @@ def handle_form():
         email = request.form['email']
         password1 = request.form['password1']
         password2 = request.form['password2']
+        xsrfTokenSent = request.form["xsrf_token"]
         print(f"EMAIL: {email}, PASSWORD: {password1}, CONFIRM PASS: {password2}")
-
+        if xsrfTokenSent != auth.xsrfToken: 
+            #print(f"{xsrftokensent} = {auth.xsrfToken}")
+            print("test")
+            return render_template("Error.html")
         if password1 == password2 == "":
             flash('Invalid password entered')
         if password1 == password2:
@@ -69,8 +80,9 @@ def handle_form():
                     flash(err, 'error')
         elif password1 != password2:
             flash('Passwords do not match.', 'error')
-             
-    return render_template("Signup.html")
+    auth.xsrfToken = str(''.join(random.choices(string.ascii_letters + string.digits , k = 27)))
+         
+    return render_template("Signup.html",xsrf=auth.xsrfToken)
 
 # The following Password requirements must be met:
 # At least 8 characters long.
