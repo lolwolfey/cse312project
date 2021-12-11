@@ -20,6 +20,8 @@ onlineusers = []
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 imagecount = 0
 imageNames = []
+global_filename= ""
+
 def allowed_file(filename):
     print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -41,7 +43,8 @@ def home():
             saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username)
             imageNames.append(filename)
             print(f"IMAGE NAMES {imageNames}")
-            return render_template('index.html',filename=filename, len = len(onlineusers), onlineuserslist=onlineusers,imagedump=imageNames)
+            global_filename = filename
+            return render_template('index.html',filename=filename, len = len(onlineusers), onlineuserslist=onlineusers,imagedump=imageNames, uploaded=True, upvote=0)
             #image uploaded success
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error')
@@ -52,7 +55,7 @@ def home():
 
     if not (current_user.username in onlineusers):
         onlineusers.append(current_user.username)
-    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers,imagedump = imageNames,lenimage=imagecount)
+    return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers,imagedump = imageNames,lenimage=imagecount, uploaded=False)
 
 
 @main.route('/display/<filename>')
@@ -97,3 +100,10 @@ def change(username, methods = ['GET','POST']):
     #should just reload template with new username so no need to socket emit again
     
     return render_template('index.html', len = len(onlineusers), onlineuserslist = onlineusers, username=current_user.username)
+
+@socketio.on('upvote')
+@login_required
+def upvote(upvotes, methods = ['GET','POST']):
+    print("upvote request recieved")
+    result = int(upvote) + 1
+    return render_template('index.html',filename=global_filename, len = len(onlineusers), onlineuserslist=onlineusers,imagedump=imageNames, uploaded=True, upvote=str(result))
