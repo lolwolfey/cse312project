@@ -8,7 +8,7 @@ import os
 from flask import session, current_app, flash
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from .database_handler import init, update_user_id, User, saveImageDB #delete when merging?
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from . import socketio
 from app import database_handler,auth
 import requests
@@ -21,6 +21,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 imagecount = 0
 imageNames = []
 global_filename = ""
+userrn = ""
 
 def allowed_file(filename):
     print(f"ALLOWED EXTENSION: {filename.rsplit('.', 1)[1].lower()}")
@@ -30,6 +31,7 @@ def allowed_file(filename):
 @login_required
 def home():
     global imagecount
+    global userrn
     if request.method == 'POST':
         file = request.files['upload']
         if file and allowed_file(file.filename):
@@ -50,6 +52,7 @@ def home():
     #html templates to render
     print(f"LOGGED IN USERS:{loggedInUsers}")
     print(f"CURRENT USER LOGGED IN: {current_user.username}")
+    userrn = str(current_user.username)
     return render_template('index.html',len = len(loggedInUsers), onlineuserslist = loggedInUsers,lenimage=imagecount)
 
 
@@ -57,6 +60,15 @@ def home():
 def display_image(filename):
     print('display_image filename: ' + filename)
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
+@main.route("/logout", methods=['POST','GET'])
+@login_required
+def logout():
+    logout_user()
+    loggedInUsers.remove(userrn)
+    print(f"AFTER LOGOUT: {loggedInUsers}")
+    return redirect(url_for('auth.login'))
+
 
 @socketio.on('connection')
 @login_required

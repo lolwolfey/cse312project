@@ -119,9 +119,5 @@ def email_requirements(email):
     else:
         return False
 
-@auth.route("/logout", methods=['POST'])
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('auth.login'))
+
 

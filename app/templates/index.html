@@ -75,9 +75,7 @@
                             class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navcol-2">
                         <ul class="navbar-nav me-auto">
-                        </ul><span class="navbar-text actions"> <a class="btn btn-light w-100" id="log out" role="button"
-                                style="background: rgb(33, 74, 128);color: var(--bs-white);" href="/home">Log
-                                out</a></span>
+                        </ul>
                     </div>
                 </div>
             </nav>
@@ -126,6 +124,7 @@
         
                             </div>
                         </div>
+                        <a href={{url_for('main.logout')}}>LOG OUT!</a>
                         <div class="col">
                             <div class="box">
                                 <h3 class="name">Latest Image Uploaded<i style="color: #65F0BD; " class="fas fa-cogs"></i></a>
