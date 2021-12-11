@@ -105,5 +105,5 @@ def change(username, methods = ['GET','POST']):
 @login_required
 def upvote(upvotes, methods = ['GET','POST']):
     print("upvote request recieved")
-    result = int(upvote) + 1
-    return render_template('index.html',filename=global_filename, len = len(onlineusers), onlineuserslist=onlineusers,imagedump=imageNames, uploaded=True, upvote=str(result))
+    result = int(upvotes) + 1
+    socketio.emit('upvote_recieved', result)

@@ -38,14 +38,13 @@
                     console.log("received message");
                 });
 
+                socket.on('upvote_recieved', function(upvote){
+                    $("#numupvote").html(upvote);
+                });
+
                 socket.on('Direct', function(msg){
                     console.log("direct message sent");
                     alert(msg)
-                });
-
-                socket.on('upvote_recieve', function(num){
-                    console.log("upvote recieved");
-                    $('#numupvotes').html(num)
                 });
 
                 $('#sendbutton').on('click', function(){
@@ -62,8 +61,10 @@
                 })
 
                 $('#updateupvote').on('click', function(){
-                    socket.emit('upvote', $('#numupvotes').val())
+                    socket.emit('upvote', $('#numupvotes').text())
                 })
+
+
 
             })
         </script>
@@ -135,7 +136,7 @@
                                 
                                 {% if uploaded %}
                                     <p>Upvotes: </p>
-                                    <p id="numupvotes">{{ upvote }}</p>
+                                    <p id="numupvotes">0</p>
                                     <button id="updateupvote">upvote</button>
                                 {% endif %}
         
