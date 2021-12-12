@@ -4,6 +4,7 @@ Flask-Login
 Flask-Migrate
 requests==2.26.0
 pymongo>=3.12.1
+Flask-PyMongo>=2.3.0
 Flask-SocketIO==4.3.1
 python-engineio==3.13.2
 python-socketio==4.6.0

@@ -20,12 +20,26 @@ class DB(object):
     def insert(collection, data):
         print(f"INSERTING into {collection}: {data}")
         DB.DATABASE[collection].insert_one(data)
+    
+    @staticmethod
+    def update_one(collection,query,newvalues):
+        print(f"FINDING {collection} using {query}")
+        return DB.DATABASE[collection].update_one(query,newvalues)
 
     @staticmethod
     def find_one(collection, query):
         print(f"FINDING {collection} using {query}")
-        print(f"{DB.DATABASE[collection].find_one(query)}")
-        return DB.DATABASE[collection].find_one(query)
+        print(f"{DB.DATABASE[collection].find_one()}")
+        #print("findONE",DB.DATABASE[collection].find())
+        users = None
+        x = DB.DATABASE[collection]
+        for i in x.find():
+            if query in i.values():
+                print(query)
+                print(i)
+                users = i
+        print("Current_user",users)
+        return users
     
 
 class User(UserMixin):
@@ -91,7 +105,8 @@ def init(mongo):
     
 
 def user_login(username,password):
-    row = DB.find_one("userDetails",{"username":username})
+    row = DB.find_one("userDetails",username)
+    
     if row == None:
         return False
     db_password = row["password"]
@@ -101,28 +116,32 @@ def user_login(username,password):
     
 def signup_user(email,username,password):
     global user_ID
-    if (DB.find_one("userDetails",{"email": email}) != None) or (DB.find_one("userDetails",{"username":username}) != None):
+    if (DB.find_one("userDetails",email) != None) or (DB.find_one("userDetails",username) != None):
         print("SIGNUP FAILED")
         return False
-    if (DB.find_one("userDetails",{"email": email})==None) and (DB.find_one("userDetails",{"username":username}) == None):
+    if (DB.find_one("userDetails",email)==None) and (DB.find_one("userDetails",username) == None):
         hashedPassword = generate_password_hash(password, method='sha256')
         userDetails = {"user_ID": user_ID,"email": email, "username": username, "password": hashedPassword}
-        user_ID+=1
+        user_ID = user_ID + 1
+        print("USER_ID_USER",user_ID)
         DB.insert("userDetails",userDetails)
-        DB.find_one("userDetails",{"email": email})
+        DB.find_one("userDetails",email)
         print("SIGNUP SUCCESS")
         return True #signup pass
     return False #signup failed
 
 def get_user_by_username(username):
-    row = DB.find_one("userDetails",{"username": username})
+    row = DB.find_one("userDetails",username)
     return row
 
 def get_user_by_id(id):
-    row = DB.find_one("userDetails",{"user_ID": id})
+    row = DB.find_one("userDetails",id)
     if row == None:
         return False
     return row
-    
+
+def update_user_id(oldusername, newusername):
+    DB.update_one("userDetails", {"username":oldusername}, {"$set":{"username":newusername}})
+
 def saveImageDB(filename,username):
     DB.insert("imageCollection",{username: filename})

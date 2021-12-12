@@ -5,44 +5,141 @@
 </head>
 <body>
 
-  <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-  <div class="message_holder"></div>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <title>CSE312_home</title>
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+        <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
+        <link rel="stylesheet" href="assets/css/Navigation-with-Button.css">
+        <link rel="stylesheet" href="assets/css/Team-Boxed.css">
+        <link rel="stylesheet" href="assets/css/Social-Icons.css">
+        <title>Flask-SocketIO-Chat: {{ room }}</title>
+        <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function(){
+                var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-  <form action="" method="POST">
-    <input type="text" class="username" placeholder="User Name"/>
-    <input type="text" class="message" placeholder="Messages"/>
-    <input type="submit"/>
-  </form>
+                socket.on('connect',function(){
+                    socket.emit('connection',{});
+                });
+                
+                socket.on('response',function(){
+                    $('#log').append('<li>'+'user has connected with websocket'+'</li>');
+                    console.log("user connected");
+                })
 
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
-  <script type="text/javascript">
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+                socket.on('my_response', function(msg){
+                    $('#log').append('<li>'+msg+'</li>');
+                    console.log("received message");
+                });
 
-    socket.on( 'connect', function() {
-      socket.emit( 'my event', {
-        data: 'User Connected'
-      } )
-      var form = $( 'form' ).on( 'submit', function( e ) {
-        e.preventDefault()
-        let user_name = $( 'input.username' ).val()
-        let user_input = $( 'input.message' ).val()
-        socket.emit( 'my event', {
-          user_name : user_name,
-          message : user_input
-        } )
-        $( 'input.message' ).val( '' ).focus()
-      } )
-    } )
-    socket.on( 'my response', function( msg ) {
-      console.log( msg )
-      if( typeof msg.user_name !== 'undefined' ) {
-        $( 'h3' ).remove()
-        $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
-      }
-    })
-  </script>
+                socket.on('Direct', function(msg){
+                    console.log("direct message sent");
+                    alert(msg)
+                });
 
-</body>
+                $('#sendbutton').on('click', function(){
+                    socket.emit('direct_message', {
+                        username: $("#usertomessage").val(),
+                        message: $("#myMessage").val()
+                    })
+                    $('#myMessage').val('');
+                })
+
+                $('#userchangebutton').on('click', function(){
+                    socket.emit('usernamechange', $('#usernamechange').val())
+                    $('#usernamechange').val('');
+                })
+
+            })
+        </script>
+        </head>
+        <body>
+            <nav class="navbar navbar-light navbar-expand-md navigation-clean-button" style="background: #1E2833;">
+                <div class="container"><a class="navbar-brand" href="/home" style="color: #ffffff;">UBIMG</a><button
+                        data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-2"><span
+                            class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navcol-2">
+                        <ul class="navbar-nav me-auto">
+                        </ul><span class="navbar-text actions"> <a class="btn btn-light w-100" id="log out" role="button"
+                                style="background: rgb(33, 74, 128);color: var(--bs-white);" href="/home">Log
+                                out</a></span>
+                    </div>
+                </div>
+            </nav>
+            <section class="team-boxed">
+                <form action="/home" id="image-form" method="post" enctype="multipart/form-data">
+                    <label class="form-label" for="upload">Upload An Image to the canvas!</label>
+                    <input type="file" class="form-control" id="upload" name="upload"/>
+                    <input type="submit" value="Upload!"/>
+                </form>
+                <div class="container">
+                    <div class="row people">
+                        <div class="col">
+                            <div class="box">
+                                <h3 class="name">Users Online<i class="fas fa-cogs"></i></a> </h3>
+                                
+                                <ul style="padding: -49px;width: 277.984px;margin: 12px;" id="CSE250q">
+
+                                    
+                                    
+                                    {% for x in range(0, len)%}
+                                            <li id="user{{x}}">{{onlineuserslist[x]}}</li>
+                                    {% endfor %}
+                                    <p>Enter a user to message</p>
+                                    <input type='text' id='usertomessage'>
+                                    <p>Enter your message</p>
+                                    <input type='text' id='myMessage'>
+                                    <button id="sendbutton">send</button>
+                                    
+                                        
+
+
+                                </ul>
+
+                                <p class="description"></p>
+                                <ul class="list-group"></ul>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="box">
+                                <h3 class="name">Change your username here!:<i style="color: #65F0BD; " class="fas fa-cogs"></i></a>
+                                </h3>
+
+                                <p>Enter the username you wish to change to: </p>
+                                <input type='text' id='usernamechange'>
+                                <button id="userchangebutton">submit</button>
+        
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="box">
+                                <h3 class="name">Latest Image Uploaded<i style="color: #65F0BD; " class="fas fa-cogs"></i></a>
+                                </h3>
+        
+                                <image src="{{ url_for('main.display_image', filename=filename )}}"></image>
+        
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="box">
+                        <h3 class="name">Image Canvas<i style="color: #C2D655; " class="fas fa-cogs"></i></a> </h3>
+        
+                        {% for filen in imagedump %}
+                            <image src="{{ url_for('main.display_image', filename=filen) }}"></image>
+                            <br/>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        
+        </body>
+        
 </html>
