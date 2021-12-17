@@ -6,7 +6,7 @@ from flask_login import login_user, login_required, logout_user
 import sys
 #import psycopg2
 import os
-from .database_handler import init, signup_user, user_login, saveImageDB, User#delete when merging
+from .database_handler import signup_user, User#delete when merging
 from pymongo import MongoClient, mongo_client
 from app import *
 import random
