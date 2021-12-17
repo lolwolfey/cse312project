@@ -48,7 +48,7 @@ def home():
             saveImageDB(os.path.join(current_app.config['UPLOAD_FOLDER'], filename),current_user.username) #never used
             imageNames.append(filename)
             print(f"IMAGE NAMES {imageNames}")
-            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers, uploaded=True,upvote=0)
+            return render_template('index.html',filename=filename, len = len(loggedInUsers), onlineuserslist=loggedInUsers,imagedump=imageNames, uploaded=True,upvote=0)
             #image uploaded success
         else:
             flash('Allowed image types are -> png, jpg, jpeg','error') #add flash template in index.html file
@@ -59,7 +59,7 @@ def home():
     print(f"LOGGED IN USERS:{loggedInUsers}")
     print(f"CURRENT USER LOGGED IN: {current_user.username}")
     userrn = str(current_user.username)
-    return render_template('index.html',len = len(loggedInUsers), onlineuserslist = loggedInUsers,lenimage=imagecount,xsrf=main.xsrfToken)
+    return render_template('index.html',len = len(loggedInUsers), onlineuserslist = loggedInUsers,lenimage=imagecount,xsrf=main.xsrfToken,imagedump=imageNames)
 
 
 @main.route('/display/<filename>')
